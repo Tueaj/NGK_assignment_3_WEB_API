@@ -96,9 +96,10 @@ namespace WeatherReadingsAPI.Controllers
             var claims = new Claim[]
             {
                 new Claim("Email", user.Email),
+                new Claim(ClaimTypes.Role,user.Role),
                 new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
                 new Claim("UserId", user.UserId.ToString()),
-                new Claim(ClaimTypes.Role,user.Role), 
+                new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
                 new Claim(JwtRegisteredClaimNames.Exp,
                     new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
             };

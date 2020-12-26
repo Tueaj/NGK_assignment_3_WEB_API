@@ -13,7 +13,7 @@ namespace WeatherReadingsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ManageUsersController : ControllerBase
     {
         private readonly WeatherReadingsAPIContext _context;
@@ -24,7 +24,6 @@ namespace WeatherReadingsAPI.Controllers
         }
 
         // GET: api/ManageUsers
-        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUser()
         {
