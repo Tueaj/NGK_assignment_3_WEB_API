@@ -41,7 +41,7 @@ namespace WeatherReadingsAPI
             services.Configure<AppSettings>(appSettingsSection);
 
 
-
+            // configure jwt authentication
             var appSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(appSettings.SecretKey);
             services.AddAuthentication(x =>
@@ -61,7 +61,6 @@ namespace WeatherReadingsAPI
                         ValidateAudience = false
                     };
                 });
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -86,7 +85,6 @@ namespace WeatherReadingsAPI
                 .AllowCredentials()
             );
 
-            
 
             app.UseRouting();
 

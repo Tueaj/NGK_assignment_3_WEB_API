@@ -34,7 +34,6 @@ namespace WeatherReadingsAPI.Controllers
         // GET: api/ManageUsers/5
         [HttpGet("{id}")]
         //[Authorize(Roles = Role.Admin)]
-        [Authorize]
         public async Task<ActionResult<User>> GetUser(long id)
         {
             var user = await _context.User.FindAsync(id);
