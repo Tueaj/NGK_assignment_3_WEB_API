@@ -13,7 +13,7 @@ namespace WeatherReadingsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class ManageUsersController : ControllerBase
     {
         private readonly WeatherReadingsAPIContext _context;
@@ -24,6 +24,7 @@ namespace WeatherReadingsAPI.Controllers
         }
 
         // GET: api/ManageUsers
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUser()
         {
@@ -33,6 +34,7 @@ namespace WeatherReadingsAPI.Controllers
         // GET: api/ManageUsers/5
         [HttpGet("{id}")]
         //[Authorize(Roles = Role.Admin)]
+        [Authorize]
         public async Task<ActionResult<User>> GetUser(long id)
         {
             var user = await _context.User.FindAsync(id);

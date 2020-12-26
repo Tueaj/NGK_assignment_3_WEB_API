@@ -1,24 +1,16 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WeatherReadingsAPI.Data;
 using WeatherReadingsAPI.Models;
-using Microsoft.AspNetCore.Identity;
 
 namespace WeatherReadingsAPI
 {
@@ -34,6 +26,10 @@ namespace WeatherReadingsAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
+            services.AddDbContext<WeatherReadingsAPIContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("WeatherReadingsAPIContext")));
+            services.AddControllers();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -66,10 +62,6 @@ namespace WeatherReadingsAPI
                     };
                 });
 
-
-
-            services.AddDbContext<WeatherReadingsAPIContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("WeatherReadingsAPIContext")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -83,6 +75,18 @@ namespace WeatherReadingsAPI
             }
 
             app.UseHttpsRedirection();
+
+            // Configure cors
+            app.UseCors(x => x
+                //.AllowAnyOrigin() // Not allowed together with AllowCredential
+                //.WithOrigins("http://localhost:8080", "http://localhost:5000" )
+                .SetIsOriginAllowed(x => _ = true)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()
+            );
+
+            
 
             app.UseRouting();
 
