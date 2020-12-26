@@ -49,6 +49,7 @@ namespace WeatherReadingsAPI.Controllers
                 LastName = regUser.LastName
             };
             user.PwHash = HashPassword(regUser.Password, BcryptWorkfactor);
+            user.Role = Role.User;
             _context.User.Add(user);
             await _context.SaveChangesAsync();
             return CreatedAtAction("Get", new { id = user.UserId }, regUser);
@@ -89,6 +90,7 @@ namespace WeatherReadingsAPI.Controllers
             ModelState.AddModelError(string.Empty, "Forkert brugernavn eller password");
             return BadRequest(ModelState);
         }
+
         private string GenerateToken(User user)
         {
             var claims = new Claim[]
@@ -96,6 +98,7 @@ namespace WeatherReadingsAPI.Controllers
                 new Claim("Email", user.Email),
                 new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
                 new Claim("UserId", user.UserId.ToString()),
+                new Claim(ClaimTypes.Role,user.Role), 
                 new Claim(JwtRegisteredClaimNames.Exp,
                     new DateTimeOffset(DateTime.Now.AddDays(1)).ToUnixTimeSeconds().ToString()),
             };

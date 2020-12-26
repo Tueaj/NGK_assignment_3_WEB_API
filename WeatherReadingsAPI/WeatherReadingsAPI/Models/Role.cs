@@ -2,13 +2,10 @@
 
 namespace WeatherReadingsAPI.Models
 {
-    public class Role : IAuthorizationRequirement
+    public static class Role
     {
-        public Role(string role)
-        {
-            MyRole = role;
-        }
-
-        public string MyRole { get; }
+        public const string Admin = "Admin";
+        public const string User = "User";
+        public const string WeatherStation = "WeatherStation";
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace WeatherReadingsAPI.Models
 {
-    public class User : IdentityUser
+    public class User
     {
         [Key]
         public long UserId { get; set; }
@@ -17,6 +17,6 @@ namespace WeatherReadingsAPI.Models
         public string PwHash { get; set; }
         
         //Role
-        public Role MyRole { get; set; }
+        public string Role { get; set; }
     }
 }

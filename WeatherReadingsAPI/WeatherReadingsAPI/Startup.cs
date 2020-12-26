@@ -44,9 +44,6 @@ namespace WeatherReadingsAPI
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
-            services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<WeatherReadingsAPIContext>()
-                .AddDefaultTokenProviders();
 
 
             var appSettings = appSettingsSection.Get<AppSettings>();
@@ -76,7 +73,7 @@ namespace WeatherReadingsAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, WeatherReadingsAPIContext context)
         {
             if (env.IsDevelopment())
             {
@@ -97,6 +94,8 @@ namespace WeatherReadingsAPI
             {
                 endpoints.MapControllers();
             });
+
+            DbUtilities.SeedData(context);
         }
     }
 }

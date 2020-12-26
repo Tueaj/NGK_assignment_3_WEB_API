@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace WeatherReadingsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ManageUsersController : ControllerBase
     {
         private readonly WeatherReadingsAPIContext _context;
@@ -30,6 +32,7 @@ namespace WeatherReadingsAPI.Controllers
 
         // GET: api/ManageUsers/5
         [HttpGet("{id}")]
+        //[Authorize(Roles = Role.Admin)]
         public async Task<ActionResult<User>> GetUser(long id)
         {
             var user = await _context.User.FindAsync(id);
