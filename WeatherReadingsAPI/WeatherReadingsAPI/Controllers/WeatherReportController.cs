@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using WeatherReadingsAPI.Data;
 using WeatherReadingsAPI.Models;
@@ -32,6 +34,54 @@ namespace WeatherReadingsAPI.Controllers
         public string Get(int id)
         {
             return "value";
+        }
+
+        //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
+        //Get api/newest
+        [HttpGet("newest")]
+        public async Task<ActionResult> GetthreeNewestReports()
+        {
+            var WRepotrs = _context.WReport.OrderByDescending(u => u.Time).Take(3).ToListAsync();
+            if (WRepotrs == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(WRepotrs);
+            }
+        }
+
+        //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
+        //Get api/<date>
+        [HttpGet("{Date}")]
+        public async Task<ActionResult> GetReportsFromDate(DateTime date)
+        {
+            var WRepotrs = _context.WReport.Where(u => u.Time == date).ToListAsync();
+            if (WRepotrs == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(WRepotrs);
+            }
+        }
+
+        //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
+        // GET api/<startDate>/<EndDate>
+        [HttpGet("{Start}/{end}")]
+        public async Task<ActionResult> getReportsBetweenTwoDates(DateTime start, DateTime end)
+        {
+            var WRepotrs = _context.WReport.Where(u => u.Time >= start && u.Time <= end).Include(u => u.Place).ToListAsync();
+            if (WRepotrs == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(WRepotrs);
+            }
         }
 
         // POST api/<WeatherReport>
@@ -61,8 +111,8 @@ namespace WeatherReadingsAPI.Controllers
             }
             _context.WReport.Add(newReport);
             await _context.SaveChangesAsync();
-            string json = JsonConvert.SerializeObject(newReport, Formatting.Indented, JsonSerializerOptions);
-            return Ok(json);
+            //string json = JsonConvert.SerializeObject(newReport, Formatting.Indented, JsonSerializerOptions);
+            return Ok();
 
         }
         
