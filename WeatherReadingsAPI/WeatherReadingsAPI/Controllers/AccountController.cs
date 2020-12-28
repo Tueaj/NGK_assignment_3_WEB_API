@@ -59,7 +59,7 @@ namespace WeatherReadingsAPI.Controllers
         // GET: api/Account/5
         [HttpGet("{id}")]
         
-       
+       [Authorize(Roles = "WeatherStation")]
         public async Task<ActionResult<UserDto>> Get(long id)
         {
             var user = await _context.User.FindAsync(id);

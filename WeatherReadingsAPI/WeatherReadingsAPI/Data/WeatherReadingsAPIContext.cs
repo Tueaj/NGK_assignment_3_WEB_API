@@ -24,5 +24,8 @@ namespace WeatherReadingsAPI.Data
 
 
         public DbSet<WeatherReadingsAPI.Models.User> User { get; set; }
+
+        public DbSet<WeatherReadingsAPI.Models.Place> Place { get; set; }
+        public DbSet<WeatherReadingsAPI.Models.WeatherRepport> WReport { get; set; }
     }
 }
