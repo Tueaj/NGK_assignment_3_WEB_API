@@ -33,7 +33,7 @@ namespace WeatherReadingsAPI
                 options.UseSqlServer(Configuration.GetConnectionString("WeatherReadingsAPIContext")));
             services.AddControllers();
 
-            services.AddControllers();
+          
            
 
             var appSettingsSection = Configuration.GetSection("AppSettings");
@@ -57,7 +57,10 @@ namespace WeatherReadingsAPI
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(key),
                         ValidateIssuer = false,
-                        ValidateAudience = false
+                        ValidateAudience = false,
+                        //ValidIssuer = "https://localhost:44316/",
+                        //ValidAudience = "https://localhost:44316/",
+                        //ValidateLifetime = true
                     };
                 });
 
@@ -92,9 +95,10 @@ namespace WeatherReadingsAPI
 
             app.UseRouting();
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
 
-            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

@@ -19,6 +19,7 @@ namespace WeatherReadingsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AccountController : ControllerBase
     {
         private readonly WeatherReadingsAPIContext _context;
@@ -56,7 +57,9 @@ namespace WeatherReadingsAPI.Controllers
         }
 
         // GET: api/Account/5
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}")]
+        
+       
         public async Task<ActionResult<UserDto>> Get(long id)
         {
             var user = await _context.User.FindAsync(id);
@@ -95,7 +98,7 @@ namespace WeatherReadingsAPI.Controllers
         {
             var claims = new Claim[]
             {
-                new Claim("Email", user.Email),
+                new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role,user.Role),
                 new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
                 new Claim("UserId", user.UserId.ToString()),
