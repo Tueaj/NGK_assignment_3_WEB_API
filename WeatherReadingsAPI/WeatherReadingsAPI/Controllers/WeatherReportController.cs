@@ -49,10 +49,13 @@ namespace WeatherReadingsAPI.Controllers
 
         //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         //Get api/<date>
-        [HttpGet("{Date}")]
-        public async Task<ActionResult> GetReportsFromDate(DateTime date)
+        [HttpGet("SpecificDate")]
+        public async Task<ActionResult<List<WeatherRepport>>> GetReportsFromDate([FromBody] DateDto dates)
         {
-            var WRepotrs = _context.WReport.Where(u => u.Time == date).ToListAsync();
+            var compareDate = DateTime.Parse(dates.StartDate);
+
+            
+            var WRepotrs = await _context.WReport.Where(u => u.Time.Date == compareDate.Date).ToListAsync();
             if (WRepotrs == null)
             {
                 return NotFound();
@@ -62,20 +65,24 @@ namespace WeatherReadingsAPI.Controllers
                 return Created(WRepotrs.ToString(), WRepotrs);
             }
         }
+        
 
         //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         // GET api/<startDate>/<EndDate>
-        [HttpGet("{Start}/{end}")]
-        public async Task<ActionResult> getReportsBetweenTwoDates(DateTime start, DateTime end)
+        [HttpGet("DateRange")]
+        public async Task<ActionResult<List<WeatherRepport>>> getReportsBetweenTwoDates([FromBody] DateDto dates)
         {
-            var WRepotrs = _context.WReport.Where(u => u.Time >= start && u.Time <= end).Include(u => u.Place).ToListAsync();
+            var compareStartDate = DateTime.Parse(dates.StartDate);
+            var compareEndDate = DateTime.Parse(dates.EndDate);
+
+            var WRepotrs =  await _context.WReport.Where(u => u.Time.Date >= compareStartDate.Date && u.Time.Date <= compareEndDate.Date).ToListAsync();
             if (WRepotrs == null)
             {
                 return NotFound();
             }
             else
             {
-                return Ok(WRepotrs);
+                return Created(WRepotrs.ToString(), WRepotrs);
             }
         }
 

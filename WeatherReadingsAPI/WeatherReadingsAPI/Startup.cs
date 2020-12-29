@@ -7,7 +7,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using AutoMapper;
-using Newtonsoft;
+using Microsoft.AspNetCore.SignalR;
+ using WeatherReadingsAPI.Hub;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,7 @@ namespace WeatherReadingsAPI
                 options.UseSqlServer(Configuration.GetConnectionString("WeatherReadingsAPIContext")));
             services.AddControllers();
 
+            
 
             services.AddMvc()
                 .AddNewtonsoftJson(
@@ -43,8 +45,10 @@ namespace WeatherReadingsAPI
                         options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     });
 
+            services.AddSignalR();
 
-          var appSettingsSection = Configuration.GetSection("AppSettings");
+
+            var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
 
@@ -66,9 +70,7 @@ namespace WeatherReadingsAPI
                         IssuerSigningKey = new SymmetricSecurityKey(key),
                         ValidateIssuer = false,
                         ValidateAudience = false,
-                        //ValidIssuer = "https://localhost:44316/",
-                        //ValidAudience = "https://localhost:44316/",
-                        //ValidateLifetime = true
+                        
                     };
                 });
 
@@ -84,6 +86,9 @@ namespace WeatherReadingsAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, WeatherReadingsAPIContext context)
         {
+
+            
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -92,6 +97,8 @@ namespace WeatherReadingsAPI
             }
 
             app.UseHttpsRedirection();
+
+           
 
             // Configure cors
             app.UseCors(x => x
@@ -103,6 +110,7 @@ namespace WeatherReadingsAPI
                 .AllowCredentials()
             );
 
+            
 
             app.UseRouting();
 
@@ -113,7 +121,9 @@ namespace WeatherReadingsAPI
 
             app.UseEndpoints(endpoints =>
             {
+                
                 endpoints.MapControllers();
+                endpoints.MapHub<ServerSignal>("/reporthub");
             });
 
             DbUtilities.SeedData(context);
