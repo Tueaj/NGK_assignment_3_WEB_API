@@ -81,7 +81,7 @@ namespace WeatherReadingsAPI.Controllers
 
         // POST api/<WeatherReport>
         [HttpPost("postReport")]
-        public async Task<ActionResult<WeatherRepport>> PostReport([FromBody] WeatherRepport report)
+        public async Task<ActionResult<WeatherRepport>> PostReport([FromBody] WeatherReportDto report)
         {
             if (report == null)
             {
@@ -97,14 +97,16 @@ namespace WeatherReadingsAPI.Controllers
 
             WeatherRepport newReport = new WeatherRepport();
             {
-                newReport.Place = report.Place;
+                newReport.Place = _context.Place.FirstOrDefault(u => u.Id == report.PlaceId);
                 newReport.PlaceId = report.PlaceId;
                 newReport.AirPressure = report.AirPressure;
                 newReport.Humidity = report.Humidity;
                 newReport.Temp = report.Temp;
                 newReport.Time = DateTime.Now;
             }
-            _context.WReport.AddAsync(newReport);
+
+            await _context.WReport.AddAsync(newReport);
+
             await _context.SaveChangesAsync();
 
             return Created(newReport.ToString(), newReport);
