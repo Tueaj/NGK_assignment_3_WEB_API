@@ -7,6 +7,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using AutoMapper;
+using Newtonsoft;
+using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -33,10 +35,16 @@ namespace WeatherReadingsAPI
                 options.UseSqlServer(Configuration.GetConnectionString("WeatherReadingsAPIContext")));
             services.AddControllers();
 
-          
-           
 
-            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.AddMvc()
+                .AddNewtonsoftJson(
+                    options =>
+                    {
+                        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    });
+
+
+          var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
 
@@ -63,6 +71,9 @@ namespace WeatherReadingsAPI
                         //ValidateLifetime = true
                     };
                 });
+
+            
+
 
             services.AddSwaggerGen(c =>
             {

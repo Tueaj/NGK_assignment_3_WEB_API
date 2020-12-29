@@ -29,12 +29,7 @@ namespace WeatherReadingsAPI.Controllers
             _context = context;
         }
 
-        // GET api/<WeatherReport>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
+      
 
         //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         //Get api/newest
@@ -64,7 +59,7 @@ namespace WeatherReadingsAPI.Controllers
             }
             else
             {
-                return Ok(WRepotrs);
+                return Created(WRepotrs.ToString(), WRepotrs);
             }
         }
 
@@ -109,10 +104,10 @@ namespace WeatherReadingsAPI.Controllers
                 newReport.Temp = report.Temp;
                 newReport.Time = DateTime.Now;
             }
-            _context.WReport.Add(newReport);
+            _context.WReport.AddAsync(newReport);
             await _context.SaveChangesAsync();
-            //string json = JsonConvert.SerializeObject(newReport, Formatting.Indented, JsonSerializerOptions);
-            return Ok();
+
+            return Created(newReport.ToString(), newReport);
 
         }
         
