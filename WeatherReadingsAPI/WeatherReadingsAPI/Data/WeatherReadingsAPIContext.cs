@@ -9,6 +9,10 @@ namespace WeatherReadingsAPI.Data
 {
     public class WeatherReadingsAPIContext : DbContext
     {
+        public WeatherReadingsAPIContext()
+        {
+
+        }
         public WeatherReadingsAPIContext (DbContextOptions<WeatherReadingsAPIContext> options)
             : base(options)
         {

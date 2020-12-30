@@ -23,12 +23,12 @@ namespace WeatherReadingsAPI.Controllers
     [Authorize(Roles = "WeatherStation")]
     public class WeatherReportController : ControllerBase
     {
-        private readonly WeatherReadingsAPIContext _context;
+        private DatabaseController _dbController;
         private readonly IHubContext<ServerSignal> _hub;
 
-        public WeatherReportController(WeatherReadingsAPIContext context, IHubContext<ServerSignal> hub)
+        public WeatherReportController(DatabaseController dbController, IHubContext<ServerSignal> hub)
         {
-            _context = context;
+            _dbController = dbController;
 
            _hub = hub;
         }
@@ -41,7 +41,7 @@ namespace WeatherReadingsAPI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> GetthreeNewestReports()
         {
-            var WRepotrs = _context.WReport.OrderByDescending(u => u.Time).Take(3).ToListAsync();
+            var WRepotrs = _dbController.GetthreeNewestReports();
             if (WRepotrs == null)
             {
                 return NotFound();
@@ -60,8 +60,8 @@ namespace WeatherReadingsAPI.Controllers
         {
             var compareDate = DateTime.Parse(dates.StartDate);
 
-            
-            var WRepotrs = await _context.WReport.Where(u => u.Time.Date == compareDate.Date).ToListAsync();
+
+            var WRepotrs = _dbController.GetReportsFromDate(compareDate);
             if (WRepotrs == null)
             {
                 return NotFound();
@@ -82,7 +82,7 @@ namespace WeatherReadingsAPI.Controllers
             var compareStartDate = DateTime.Parse(dates.StartDate);
             var compareEndDate = DateTime.Parse(dates.EndDate);
 
-            var WRepotrs =  await _context.WReport.Where(u => u.Time.Date >= compareStartDate.Date && u.Time.Date <= compareEndDate.Date).ToListAsync();
+            var WRepotrs = _dbController.GetReportsBetweenTwoDates(compareStartDate, compareEndDate);
             if (WRepotrs == null)
             {
                 return NotFound();
@@ -95,7 +95,6 @@ namespace WeatherReadingsAPI.Controllers
 
         // POST api/<WeatherReport>
         [HttpPost("postReport")]
-        
         public async Task<ActionResult<WeatherRepport>> PostReport([FromBody] WeatherReportDto report)
         {
             if (report == null)
@@ -103,16 +102,16 @@ namespace WeatherReadingsAPI.Controllers
                 return BadRequest(new {errormessage = "Bad report"});
             }
 
-            var placeName = await _context.FindAsync<Place>(report.PlaceId);
+            var place = _dbController.FindPlaceById(report.PlaceId);
 
-            if (placeName.Name == null )
+            if (place.Name == null )
             {
                 return BadRequest(new {errormessage = "Place doesnt exist"});
             }
 
             WeatherRepport newReport = new WeatherRepport();
             {
-                newReport.Place = _context.Place.FirstOrDefault(u => u.Id == report.PlaceId);
+                newReport.Place = place;
                 newReport.PlaceId = report.PlaceId;
                 newReport.AirPressure = report.AirPressure;
                 newReport.Humidity = report.Humidity;
@@ -131,9 +130,8 @@ namespace WeatherReadingsAPI.Controllers
             report.Time = newReport.Time;
             report.PlaceName = newReport.Place.Name;
 
-            await _context.WReport.AddAsync(newReport);
 
-            await _context.SaveChangesAsync();
+            _dbController.AddAndSaveWeatherReport(newReport);
 
             await _hub.Clients.All.SendAsync("SendReport", report);
 

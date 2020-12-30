@@ -16,18 +16,18 @@ namespace WeatherReadingsAPI.Controllers
     [Authorize]
     public class ManageUsersController : ControllerBase
     {
-        private readonly WeatherReadingsAPIContext _context;
+        private DatabaseController _dbController;
 
-        public ManageUsersController(WeatherReadingsAPIContext context)
+        public ManageUsersController(DatabaseController dbController)
         {
-            _context = context;
+            _dbController = dbController;
         }
 
         // GET: api/ManageUsers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUser()
         {
-            return await _context.User.ToListAsync();
+            return _dbController.GetUsers();
         }
 
         // GET: api/ManageUsers/5
@@ -35,7 +35,7 @@ namespace WeatherReadingsAPI.Controllers
         //[Authorize(Roles = Role.Admin)]
         public async Task<ActionResult<User>> GetUser(long id)
         {
-            var user = await _context.User.FindAsync(id);
+            var user = _dbController.FindUserByID(id);
 
             if (user == null)
             {
@@ -55,11 +55,10 @@ namespace WeatherReadingsAPI.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
-
+            _dbController.ChangeUserState(user, EntityState.Modified);
             try
             {
-                await _context.SaveChangesAsync();
+                _dbController.SaveDB();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -81,8 +80,7 @@ namespace WeatherReadingsAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.User.Add(user);
-            await _context.SaveChangesAsync();
+            _dbController.AddAndSaveUser(user);
 
             return CreatedAtAction("GetUser", new { id = user.UserId }, user);
         }
@@ -91,21 +89,20 @@ namespace WeatherReadingsAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(long id)
         {
-            var user = await _context.User.FindAsync(id);
+            var user = _dbController.FindUserByID(id);
             if (user == null)
             {
                 return NotFound();
             }
-
-            _context.User.Remove(user);
-            await _context.SaveChangesAsync();
+            
+            _dbController.RemoveUser(user);
 
             return NoContent();
         }
 
         private bool UserExists(long id)
         {
-            return _context.User.Any(e => e.UserId == id);
+            return _dbController.UserExists(id);
         }
     }
 }

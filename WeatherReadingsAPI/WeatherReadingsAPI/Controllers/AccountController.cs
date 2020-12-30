@@ -22,14 +22,14 @@ namespace WeatherReadingsAPI.Controllers
     [Authorize]
     public class AccountController : ControllerBase
     {
-        private readonly WeatherReadingsAPIContext _context;
         const int BcryptWorkfactor = 10;
         private readonly AppSettings _appSettings;
+        private DatabaseController _dbController;
 
 
-        public AccountController(WeatherReadingsAPIContext context, IOptions<AppSettings> appSettings)
+        public AccountController(DatabaseController dbController, IOptions<AppSettings> appSettings)
         {
-            _context = context;
+            _dbController = dbController;
             _appSettings = appSettings.Value;
 
         }
@@ -39,8 +39,7 @@ namespace WeatherReadingsAPI.Controllers
         public async Task<ActionResult<UserDto>> Register(UserDto regUser)
         {
             regUser.Email = regUser.Email.ToLower();
-            var emailExist = await _context.User.Where(u =>
-                u.Email == regUser.Email).FirstOrDefaultAsync();
+            var emailExist = _dbController.FindUserByEmail(regUser.Email);
             if (emailExist != null)
                 return BadRequest(new { errorMessage = "Email already in use" });
             User user = new User()
@@ -51,8 +50,7 @@ namespace WeatherReadingsAPI.Controllers
             };
             user.PwHash = HashPassword(regUser.Password, BcryptWorkfactor);
             user.Role = Role.User;
-            _context.User.Add(user);
-            await _context.SaveChangesAsync();
+            _dbController.AddAndSaveUser(user);
             return CreatedAtAction("Get", new { id = user.UserId }, regUser);
         }
 
@@ -62,7 +60,7 @@ namespace WeatherReadingsAPI.Controllers
        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserDto>> Get(long id)
         {
-            var user = await _context.User.FindAsync(id);
+            var user = _dbController.FindUserByID(id);
             if (user == null)
             {
                 return NotFound();
@@ -78,8 +76,7 @@ namespace WeatherReadingsAPI.Controllers
         public async Task<ActionResult<TokenDto>> Login(UserDto login)
         {
             login.Email = login.Email.ToLower();
-            var user = await _context.User.Where(u => u.Email == login.Email)
-                .FirstOrDefaultAsync();
+            var user = _dbController.FindUserByEmail(login.Email);
             if (user != null)
             {
                 var validPwd = Verify(login.Password, user.PwHash);
