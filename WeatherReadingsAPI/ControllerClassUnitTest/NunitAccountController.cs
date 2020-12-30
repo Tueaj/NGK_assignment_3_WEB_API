@@ -27,8 +27,33 @@ namespace ControllerClassUnitTest
             _uut = new AccountController(databaseController, _options);
         }
 
-        [Test] //Alt context skal trækkes ud af controllere, så de kan substitudes
+        [Test]
         public void UserCreated_Register_NoErrorDetected()
+        {
+            //Arrange
+            var UserUnderCreation = new UserDto()
+            {
+                FirstName = "Lars",
+                LastName = "MobbeDreng",
+                Password = "123",
+                Email = "Lars@MD.dk"
+            };
+
+            //_dbController.FindUserByEmail(regUser.Email);
+            databaseController.FindUserByEmail(UserUnderCreation.Email).ReturnsNull();
+            databaseController.FindUserByEmail(UserUnderCreation.Email).Returns(new User());
+
+
+            //Act
+            var result = _uut.Register(UserUnderCreation).Result;
+
+            //Assert
+
+            Assert.That(result, Is.Not.EqualTo(typeof(BadRequestObjectResult)));
+        }
+
+        [Test]
+        public void UserCreated_Register_ErrorDetected()
         {
             //Arrange
             var UserUnderCreation = new UserDto()
@@ -48,8 +73,10 @@ namespace ControllerClassUnitTest
 
             //Assert
 
-            Assert.That(result, Is.Not.EqualTo(typeof(BadRequestObjectResult)));
+            Assert.That(result, Is.EqualTo(typeof(BadRequestObjectResult)));
+
         }
+
     }
 }
 
