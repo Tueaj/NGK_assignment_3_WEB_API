@@ -111,7 +111,7 @@ namespace WeatherReadingsAPI.Controllers
 
             WeatherRepport newReport = new WeatherRepport();
             {
-                newReport.Place = place;
+                newReport.Place = _dbController.FindPlaceById(report.PlaceId);
                 newReport.PlaceId = report.PlaceId;
                 newReport.AirPressure = report.AirPressure;
                 newReport.Humidity = report.Humidity;
@@ -131,10 +131,11 @@ namespace WeatherReadingsAPI.Controllers
             report.PlaceName = newReport.Place.Name;
 
 
+            
+
+             await _hub.Clients.All.SendAsync("SendReport", report);
+
             _dbController.AddAndSaveWeatherReport(newReport);
-
-            await _hub.Clients.All.SendAsync("SendReport", report);
-
 
             return Created(newReport.ToString(), newReport);
 

@@ -37,7 +37,7 @@ namespace WeatherReadingsAPI
             services.AddControllers();
 
             //Inject DBcontroller into other controllers
-            services.AddSingleton<DatabaseController>();
+            services.AddScoped<IDatabaseController, DatabaseController>();
 
 
 
@@ -49,11 +49,7 @@ namespace WeatherReadingsAPI
                     });
 
             services.AddSignalR();
-               // .AddJsonProtocol(options =>
-              //  {
-                //    options.PayloadSerializerOptions.PropertyNamingPolicy = null;
-                //});
-
+              
 
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
