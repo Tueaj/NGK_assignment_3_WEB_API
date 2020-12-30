@@ -7,9 +7,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using WeatherReadingsAPI.Data;
+using WeatherReadingsAPI.Hubs;
 using WeatherReadingsAPI.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -22,11 +24,13 @@ namespace WeatherReadingsAPI.Controllers
     public class WeatherReportController : ControllerBase
     {
         private readonly WeatherReadingsAPIContext _context;
+        private readonly IHubContext<ServerSignal> _hub;
 
-
-        public WeatherReportController(WeatherReadingsAPIContext context)
+        public WeatherReportController(WeatherReadingsAPIContext context, IHubContext<ServerSignal> hub)
         {
             _context = context;
+
+           _hub = hub;
         }
 
       
@@ -34,6 +38,7 @@ namespace WeatherReadingsAPI.Controllers
         //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         //Get api/newest
         [HttpGet("newest")]
+        [AllowAnonymous]
         public async Task<ActionResult> GetthreeNewestReports()
         {
             var WRepotrs = _context.WReport.OrderByDescending(u => u.Time).Take(3).ToListAsync();
@@ -50,6 +55,7 @@ namespace WeatherReadingsAPI.Controllers
         //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         //Get api/<date>
         [HttpGet("SpecificDate")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<WeatherRepport>>> GetReportsFromDate([FromBody] DateDto dates)
         {
             var compareDate = DateTime.Parse(dates.StartDate);
@@ -70,6 +76,7 @@ namespace WeatherReadingsAPI.Controllers
         //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         // GET api/<startDate>/<EndDate>
         [HttpGet("DateRange")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<WeatherRepport>>> getReportsBetweenTwoDates([FromBody] DateDto dates)
         {
             var compareStartDate = DateTime.Parse(dates.StartDate);
@@ -88,6 +95,7 @@ namespace WeatherReadingsAPI.Controllers
 
         // POST api/<WeatherReport>
         [HttpPost("postReport")]
+        
         public async Task<ActionResult<WeatherRepport>> PostReport([FromBody] WeatherReportDto report)
         {
             if (report == null)
@@ -109,12 +117,26 @@ namespace WeatherReadingsAPI.Controllers
                 newReport.AirPressure = report.AirPressure;
                 newReport.Humidity = report.Humidity;
                 newReport.Temp = report.Temp;
-                newReport.Time = DateTime.Now;
+
+                if(report.Time == default)
+                {
+                    newReport.Time = DateTime.Now;
+                }
+                else
+                {
+                    newReport.Time = report.Time;
+                }
             }
+
+            report.Time = newReport.Time;
+            report.PlaceName = newReport.Place.Name;
 
             await _context.WReport.AddAsync(newReport);
 
             await _context.SaveChangesAsync();
+
+            await _hub.Clients.All.SendAsync("SendReport", report);
+
 
             return Created(newReport.ToString(), newReport);
 

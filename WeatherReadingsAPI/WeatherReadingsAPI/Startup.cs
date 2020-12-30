@@ -8,7 +8,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
- using WeatherReadingsAPI.Hub;
+ using WeatherReadingsAPI.Hubs;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -46,6 +46,10 @@ namespace WeatherReadingsAPI
                     });
 
             services.AddSignalR();
+               // .AddJsonProtocol(options =>
+              //  {
+                //    options.PayloadSerializerOptions.PropertyNamingPolicy = null;
+                //});
 
 
             var appSettingsSection = Configuration.GetSection("AppSettings");
@@ -87,15 +91,24 @@ namespace WeatherReadingsAPI
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, WeatherReadingsAPIContext context)
         {
 
-            
+
 
             if (env.IsDevelopment())
             {
+
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeatherReadingsAPI v1"));
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeatherReadingsAPI v1");
+                    c.RoutePrefix = "swagger";
+                }
+
+            );
             }
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
 
            
@@ -118,13 +131,15 @@ namespace WeatherReadingsAPI
 
             app.UseAuthorization();
 
-
+           
             app.UseEndpoints(endpoints =>
             {
                 
                 endpoints.MapControllers();
                 endpoints.MapHub<ServerSignal>("/reporthub");
             });
+            
+
 
             DbUtilities.SeedData(context);
         }

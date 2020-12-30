@@ -10,7 +10,7 @@ namespace WeatherReadingsAPI.Models
     {
 
         
-
+        public DateTime Time { get; set; }
        
         public double Temp { get; set; }
 
@@ -22,5 +22,7 @@ namespace WeatherReadingsAPI.Models
 
         
         public int PlaceId { get; set; }
+
+        public string PlaceName { get; set; }
     }
 }
