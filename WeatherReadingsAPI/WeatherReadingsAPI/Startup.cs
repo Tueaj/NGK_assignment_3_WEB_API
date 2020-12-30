@@ -36,7 +36,10 @@ namespace WeatherReadingsAPI
                 options.UseSqlServer(Configuration.GetConnectionString("WeatherReadingsAPIContext")));
             services.AddControllers();
 
-            
+            //Inject DBcontroller into other controllers
+            services.AddSingleton<DatabaseController>();
+
+
 
             services.AddMvc()
                 .AddNewtonsoftJson(

@@ -16,9 +16,9 @@ namespace WeatherReadingsAPI.Controllers
     [Authorize]
     public class ManageUsersController : ControllerBase
     {
-        private DatabaseController _dbController;
+        private IDatabaseController _dbController;
 
-        public ManageUsersController(DatabaseController dbController)
+        public ManageUsersController(IDatabaseController dbController)
         {
             _dbController = dbController;
         }

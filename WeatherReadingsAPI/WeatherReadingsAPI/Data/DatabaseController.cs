@@ -6,9 +6,14 @@ using WeatherReadingsAPI.Models;
 
 namespace WeatherReadingsAPI.Data
 {
-    public class DatabaseController
+    public class DatabaseController : IDatabaseController
     {
         private WeatherReadingsAPIContext _context;
+
+        public DatabaseController(WeatherReadingsAPIContext context)
+        {
+            _context = context;
+        }
 
         public DatabaseController()
         {

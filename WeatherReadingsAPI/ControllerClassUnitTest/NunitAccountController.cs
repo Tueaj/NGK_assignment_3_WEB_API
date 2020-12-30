@@ -15,14 +15,14 @@ namespace ControllerClassUnitTest
     public class NunitAccountController
     {
         private AccountController _uut;
-        private DatabaseController databaseController;
+        private IDatabaseController databaseController;
         private IOptions<AppSettings> _options;
 
 
         [SetUp]
         public void Setup()
         {
-            databaseController = Substitute.For<DatabaseController>();
+            databaseController = Substitute.For<IDatabaseController>();
             _options = Substitute.For<IOptions<AppSettings>>();
             _uut = new AccountController(databaseController, _options);
         }
@@ -38,11 +38,11 @@ namespace ControllerClassUnitTest
                 Password = "123",
                 Email = "Lars@MD.dk"
             };
-           // _wrApiContext.User.Where(u =>
-                //u.Email == UserUnderCreation.Email).FirstOrDefaultAsync().ReturnsNull();
 
-           // _wrApiContext.User.Add(Arg.Any<User>()).ReturnsNull();
-            //_wrApiContext.SaveChangesAsync().ReturnsNull();
+            //_dbController.FindUserByEmail(regUser.Email);
+            databaseController.FindUserByEmail(UserUnderCreation.Email).Returns(new User());
+
+
             //Act
             var result = _uut.Register(UserUnderCreation);
 

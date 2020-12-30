@@ -24,10 +24,10 @@ namespace WeatherReadingsAPI.Controllers
     {
         const int BcryptWorkfactor = 10;
         private readonly AppSettings _appSettings;
-        private DatabaseController _dbController;
+        private IDatabaseController _dbController;
 
 
-        public AccountController(DatabaseController dbController, IOptions<AppSettings> appSettings)
+        public AccountController(IDatabaseController dbController, IOptions<AppSettings> appSettings)
         {
             _dbController = dbController;
             _appSettings = appSettings.Value;

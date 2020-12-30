@@ -23,10 +23,10 @@ namespace WeatherReadingsAPI.Controllers
     [Authorize(Roles = "WeatherStation")]
     public class WeatherReportController : ControllerBase
     {
-        private DatabaseController _dbController;
+        private IDatabaseController _dbController;
         private readonly IHubContext<ServerSignal> _hub;
 
-        public WeatherReportController(DatabaseController dbController, IHubContext<ServerSignal> hub)
+        public WeatherReportController(IDatabaseController dbController, IHubContext<ServerSignal> hub)
         {
             _dbController = dbController;
 
