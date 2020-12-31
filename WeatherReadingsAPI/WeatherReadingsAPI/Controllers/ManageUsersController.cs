@@ -13,11 +13,13 @@ namespace WeatherReadingsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class ManageUsersController : ControllerBase
     {
+        
         private IDatabaseController _dbController;
 
+        
         public ManageUsersController(IDatabaseController dbController)
         {
             _dbController = dbController;

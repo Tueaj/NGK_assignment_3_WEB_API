@@ -76,7 +76,7 @@ namespace WeatherReadingsAPI.Controllers
         //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         // GET api/<startDate>/<EndDate>
         [HttpGet("DateRange")]
-        [Authorize]
+        
         public async Task<ActionResult<List<WeatherRepport>>> getReportsBetweenTwoDates([FromBody] DateDto dates)
         {
             var compareStartDate = DateTime.Parse(dates.StartDate);
