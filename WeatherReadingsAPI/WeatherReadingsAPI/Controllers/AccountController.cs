@@ -56,8 +56,7 @@ namespace WeatherReadingsAPI.Controllers
 
         // GET: api/Account/5
         [HttpGet("{id}")]
-        
-       [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserDto>> Get(long id)
         {
             var user = _dbController.FindUserByID(id);
