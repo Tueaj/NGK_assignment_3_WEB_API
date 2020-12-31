@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using WeatherReadingsAPI.Models;
 
 namespace WeatherReadingsAPI.Data
@@ -79,9 +80,9 @@ namespace WeatherReadingsAPI.Data
             return _context.WReport.Where(u => u.Time.Date >= dateStart && u.Time.Date <= dateEnd).ToList();
         }
 
-        public Place FindPlaceById(int id)
+        public async Task <Place>  FindPlaceById(int id)
         {
-            return _context.Find<Place>(id);
+            return await _context.FindAsync<Place>(id);
         }
 
         public void AddAndSaveWeatherReport(WeatherRepport repport)
