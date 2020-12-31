@@ -6,6 +6,7 @@
     <script src="https://unpkg.com/@microsoft/signalr@3.0.1/dist/browser/signalr.js" crossorigin="anonymous"></script>
     <script >
 
+        
         var connection = new signalR.HubConnectionBuilder().withUrl("/reporthub").build();
 
 
@@ -30,12 +31,12 @@
 
                 var data = document.createElement("li");
                 data.textContent = output;
-                document.getElementById("reportList").appendChild(li);
+                document.getElementById("reportList").appendChild(data);
             });
     </script>
 </head>
 <body>
-<div class="container">
+<div >
     <h1> Report stream</h1>
 </div>
 <div>

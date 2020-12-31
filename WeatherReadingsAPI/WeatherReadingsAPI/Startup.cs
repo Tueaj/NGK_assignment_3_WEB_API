@@ -30,10 +30,12 @@ namespace WeatherReadingsAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddCors();
-            services.AddDbContext<WeatherReadingsAPIContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("WeatherReadingsAPIContext")));
+          //  services.AddDbContext<WeatherReadingsAPIContext>(options =>
+              //  options.UseSqlServer(Configuration.GetConnectionString("WeatherReadingsAPIContext")));
+              services.AddDbContext<WeatherReadingsAPIContext>();
             services.AddControllers();
 
             //Inject DBcontroller into other controllers
@@ -48,7 +50,7 @@ namespace WeatherReadingsAPI
                         options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     });
 
-            services.AddSignalR();
+            
               
 
             var appSettingsSection = Configuration.GetSection("AppSettings");

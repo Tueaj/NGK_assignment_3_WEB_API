@@ -20,7 +20,7 @@ namespace WeatherReadingsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "WeatherStation")]
+    [Authorize]
     public class WeatherReportController : ControllerBase
     {
         private IDatabaseController _dbController;
@@ -38,7 +38,7 @@ namespace WeatherReadingsAPI.Controllers
         //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         //Get api/newest
         [HttpGet("newest")]
-        [AllowAnonymous]
+       
         public async Task<ActionResult> GetthreeNewestReports()
         {
             var WRepotrs = _dbController.GetthreeNewestReports();
@@ -55,7 +55,7 @@ namespace WeatherReadingsAPI.Controllers
         //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         //Get api/<date>
         [HttpGet("SpecificDate")]
-        [AllowAnonymous]
+        
         public async Task<ActionResult<List<WeatherRepport>>> GetReportsFromDate([FromBody] DateDto dates)
         {
             var compareDate = DateTime.Parse(dates.StartDate);
@@ -76,7 +76,7 @@ namespace WeatherReadingsAPI.Controllers
         //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         // GET api/<startDate>/<EndDate>
         [HttpGet("DateRange")]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<ActionResult<List<WeatherRepport>>> getReportsBetweenTwoDates([FromBody] DateDto dates)
         {
             var compareStartDate = DateTime.Parse(dates.StartDate);
@@ -95,23 +95,22 @@ namespace WeatherReadingsAPI.Controllers
 
         // POST api/<WeatherReport>
         [HttpPost("postReport")]
+        [Authorize(Roles = "WeatherStation")]
         public async Task<ActionResult<WeatherRepport>> PostReport([FromBody] WeatherReportDto report)
         {
             if (report == null)
             {
                 return BadRequest(new {errormessage = "Bad report"});
             }
-
-            var place = _dbController.FindPlaceById(report.PlaceId);
+            var place = await _dbController.FindPlaceById(report.PlaceId);
 
             if (place.Name == null )
             {
                 return BadRequest(new {errormessage = "Place doesnt exist"});
             }
-
             WeatherRepport newReport = new WeatherRepport();
             {
-                newReport.Place = _dbController.FindPlaceById(report.PlaceId);
+                newReport.Place = await _dbController.FindPlaceById(report.PlaceId);
                 newReport.PlaceId = report.PlaceId;
                 newReport.AirPressure = report.AirPressure;
                 newReport.Humidity = report.Humidity;
@@ -126,19 +125,14 @@ namespace WeatherReadingsAPI.Controllers
                     newReport.Time = report.Time;
                 }
             }
-
             report.Time = newReport.Time;
             report.PlaceName = newReport.Place.Name;
 
+            await _hub.Clients.All.SendAsync("SendReport", report);
 
-            
+             _dbController.AddAndSaveWeatherReport(newReport);
 
-             await _hub.Clients.All.SendAsync("SendReport", report);
-
-            _dbController.AddAndSaveWeatherReport(newReport);
-
-            return Created(newReport.ToString(), newReport);
-
+             return Created(newReport.ToString(), newReport);
         }
         
         // PUT api/<WeatherReport>/5

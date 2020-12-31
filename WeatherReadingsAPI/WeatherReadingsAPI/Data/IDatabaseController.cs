@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WeatherReadingsAPI.Models;
 
@@ -30,7 +31,7 @@ namespace WeatherReadingsAPI.Data
 
         public List<WeatherRepport> GetReportsBetweenTwoDates(DateTime dateStart, DateTime dateEnd);
 
-        public Place FindPlaceById(int id);
+        public Task<Place> FindPlaceById(int id);
         public void AddAndSaveWeatherReport(WeatherRepport repport);
     }
 }
