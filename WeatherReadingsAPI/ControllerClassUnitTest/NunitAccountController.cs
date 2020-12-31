@@ -9,6 +9,7 @@ using NUnit.Framework;
 using WeatherReadingsAPI.Controllers;
 using WeatherReadingsAPI.Data;
 using WeatherReadingsAPI.Models;
+using static BCrypt.Net.BCrypt;
 
 namespace ControllerClassUnitTest
 {
@@ -27,8 +28,8 @@ namespace ControllerClassUnitTest
             _uut = new AccountController(databaseController, _options);
         }
 
-        [Test] //Alt context skal trækkes ud af controllere, så de kan substitudes
-        public void UserCreated_Register_NoErrorDetected()
+        [Test]
+        public void UserCreatedUserNotInDB_Register_NoErrorDetected()
         {
             //Arrange
             var UserUnderCreation = new UserDto()
@@ -39,17 +40,93 @@ namespace ControllerClassUnitTest
                 Email = "Lars@MD.dk"
             };
 
-            //_dbController.FindUserByEmail(regUser.Email);
-            databaseController.FindUserByEmail(UserUnderCreation.Email).Returns(new User());
+            databaseController.FindUserByEmail(UserUnderCreation.Email).ReturnsNull();
 
 
             //Act
-            var result = _uut.Register(UserUnderCreation);
+            var result = ((_uut.Register(UserUnderCreation).Result.Result) as ObjectResult);
 
             //Assert
 
-            Assert.That(result, Is.Not.EqualTo(typeof(BadRequestObjectResult)));
+            Assert.That(result.StatusCode, Is.EqualTo(201));
         }
+
+        [Test]
+        public void UserCreatedUserInDB_Register_ErrorDetected()
+        {
+            //Arrange
+            var UserUnderCreation = new UserDto()
+            {
+                FirstName = "Lars",
+                LastName = "MobbeDreng",
+                Password = "123",
+                Email = "Lars@MD.dk"
+            };
+
+            databaseController.FindUserByEmail(Arg.Any<string>()).ReturnsForAnyArgs(new User());
+
+            //Act
+            var result = ((_uut.Register(UserUnderCreation).Result.Result) as ObjectResult);
+
+            //Assert
+            Assert.That(result.StatusCode, Is.EqualTo(400));
+
+        }
+
+        [Test]
+        public void GetUserUserNotInDB_Get_ErrorDetected()
+        {
+            //Arrange
+            var UserUnderTest = new User()
+            {
+                FirstName = "Lars",
+                LastName = "MobbeDreng",
+                Email = "Lars@MD.dk",
+                UserId = 1
+            };
+
+            databaseController.FindUserByID(UserUnderTest.UserId).ReturnsNull();
+
+
+            //Act
+            var result = ((_uut.Get(UserUnderTest.UserId).Result.Result) as NotFoundResult);
+
+            //Assert
+
+            Assert.That(result.StatusCode, Is.EqualTo(404));
+        }
+
+        [Test]
+        public void GetUserUserInDB_Get_NoErrorDetected()
+        {
+            //Arrange
+            var UserUnderTest = new User()
+            {
+                FirstName = "Lars",
+                LastName = "MobbeDreng",
+                Email = "Lars@MD.dk",
+                UserId = 1
+            };
+            var userDto = new UserDto();
+            userDto.Email = UserUnderTest.Email;
+            userDto.FirstName = UserUnderTest.FirstName;
+            userDto.LastName = UserUnderTest.LastName;
+
+            databaseController.FindUserByID(UserUnderTest.UserId).ReturnsForAnyArgs(UserUnderTest);
+
+            //Act
+            var result = _uut.Get(UserUnderTest.UserId);
+
+            //Assert all data inside object
+            Assert.That(result.Result.Value.LastName, Is.EqualTo(userDto.LastName));
+            Assert.That(result.Result.Value.FirstName, Is.EqualTo(userDto.FirstName));
+            Assert.That(result.Result.Value.Email, Is.EqualTo(userDto.Email));
+
+        }
+
+
+
+
     }
 }
 
