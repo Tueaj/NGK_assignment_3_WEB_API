@@ -33,9 +33,6 @@ namespace WeatherReadingsAPI.Controllers
            _hub = hub;
         }
 
-      
-
-        //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         //Get api/newest
         [HttpGet("newest")]
        
@@ -52,7 +49,7 @@ namespace WeatherReadingsAPI.Controllers
             }
         }
 
-        //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
+
         //Get api/<date>
         [HttpGet("SpecificDate")]
         
@@ -72,8 +69,6 @@ namespace WeatherReadingsAPI.Controllers
             }
         }
         
-
-        //Den er ikke testet, så ved ikke om den virker, men det er noget at arbejde ud fra - Jacob
         // GET api/<startDate>/<EndDate>
         [HttpGet("DateRange")]
         [Authorize]
